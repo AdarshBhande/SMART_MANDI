@@ -110,6 +110,11 @@ const handler = (req, res) => {
           proxyRes.on('end', () => {
             try {
               const parsed = JSON.parse(resData);
+              if (parsed.error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, reason: parsed.error.message || 'GEMINI_API_ERROR' }));
+                return;
+              }
               const answerText = parsed.candidates?.[0]?.content?.parts?.[0]?.text || "Unable to retrieve AI response.";
               res.writeHead(200, { 'Content-Type': 'application/json' });
               res.end(JSON.stringify({ success: true, answer: answerText }));
