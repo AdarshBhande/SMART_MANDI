@@ -274,3 +274,8 @@ if (require.main === module) {
 }
 
 module.exports = handler;
+module.exports.config = {
+  api: {
+    bodyParser: false,
+  },
+};
