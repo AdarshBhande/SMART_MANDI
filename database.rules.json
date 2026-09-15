@@ -1,0 +1,55 @@
+{
+  "rules": {
+    "tokens": {
+      ".read": true,
+      ".indexOn": ["date", "mobile", "status", "centerId"],
+      "$tokenId": {
+        ".write": "auth != null || !data.exists() || (newData.child('bookingStatus').val() === 'cancelled' && data.child('bookingStatus').val() === 'confirmed')"
+      }
+    },
+    "slotCapacities": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "queues": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "centers": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "stations": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "waitingList": {
+      ".read": true,
+      ".write": "auth != null || !data.exists()"
+    },
+    "notifications": {
+      "$userId": {
+        ".read": "auth != null && (auth.uid === $userId || auth.token.admin === true)",
+        ".write": true
+      }
+    },
+    "analyticsSnapshots": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "forecasts": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "auditLogs": {
+      ".read": "auth != null",
+      ".write": true
+    },
+    "users": {
+      "$userId": {
+        ".read": "auth != null && (auth.uid === $userId || auth.token.admin === true)",
+        ".write": "auth != null && auth.uid === $userId"
+      }
+    }
+  }
+}

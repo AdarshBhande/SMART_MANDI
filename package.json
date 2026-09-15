@@ -1,0 +1,20 @@
+{
+  "name": "smart-mandi-token-sih2026",
+  "version": "1.0.0",
+  "description": "Smart Mandi Digital Token & Queue Management System for SIH 2026",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "sih2026",
+    "smart-mandi",
+    "agriculture",
+    "token-system",
+    "queue-management",
+    "firebase"
+  ],
+  "author": "SIH 2026 Team",
+  "license": "MIT"
+}

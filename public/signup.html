@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+  <meta name="description" content="Create a Smart Mandi account with email verification to book and track crop procurement tokens." />
+  <meta name="theme-color" content="#009959" />
+  <title>Create Account — Smart Mandi Token System</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600&display=swap" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
+</head>
+<body>
+
+  <!-- OFFLINE BANNER -->
+  <div id="offline-banner" class="offline-banner" role="alert" aria-live="polite">
+    📡 You are offline — registration requires connection
+  </div>
+
+  <!-- HEADER -->
+  <header class="app-header" role="banner">
+    <div class="container app-header__inner">
+      <a href="index.html" class="app-header__brand">
+        <div class="app-header__logo" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div>
+          <div class="app-header__title">Smart Mandi System</div>
+        </div>
+      </a>
+      <nav class="app-header__nav" aria-label="Main navigation">
+        <a href="tracker.html" class="btn btn--secondary">Track Token</a>
+        <a href="login.html" class="btn btn--secondary">Sign In</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- SIGNUP CONTAINER -->
+  <div class="login-page" style="min-height: calc(100vh - 180px);">
+    <div class="login-card">
+      <div class="login-card__header">
+        <div class="login-card__logo icon-box icon-box--lg icon-box--primary" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+        </div>
+        <h1 class="login-card__title">Create Account</h1>
+        <p class="login-card__subtitle">Register to book time-slotted tokens and track procurement</p>
+      </div>
+
+      <div class="login-card__body">
+        <div id="signup-error" class="login-error" role="alert" aria-live="polite"></div>
+        <div id="signup-success" class="badge badge--success" style="display:none; margin-bottom:var(--spacing-16); width:100%; text-align:center; padding: var(--spacing-12);" role="status" aria-live="polite"></div>
+
+        <form id="standalone-signup-form" aria-label="Create account form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="signup-name">Full Name</label>
+            <input
+              type="text"
+              id="signup-name"
+              class="form-input"
+              placeholder="e.g. Ram Kumar"
+              required
+              autocomplete="name"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signup-email">Gmail / Email Address</label>
+            <input
+              type="email"
+              id="signup-email"
+              class="form-input"
+              placeholder="your.name@gmail.com"
+              required
+              autocomplete="email"
+            />
+            <div class="form-hint">An authentication verification email link will be sent to this email address</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signup-password">Password</label>
+            <input
+              type="password"
+              id="signup-password"
+              class="form-input"
+              placeholder="Minimum 6 characters"
+              required
+              minlength="6"
+              autocomplete="new-password"
+            />
+          </div>
+
+          <button type="submit" id="signup-submit-btn" class="btn btn--primary btn--lg btn--full">
+            Create Account & Send Verification Email
+          </button>
+        </form>
+
+        <div style="text-align:center; margin-top:var(--spacing-20); font-size:var(--text-body-sm); color:var(--color-slate);">
+          Already have an account? <a href="login.html" style="color:var(--color-forest-ink); font-weight:600; text-decoration:none;">Sign In</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="app-footer" role="contentinfo">
+    <div class="container" style="text-align:center;">
+      <p>Smart Mandi Token System &nbsp;|&nbsp; <a href="tracker.html">Track Token</a></p>
+      <p style="margin-top: var(--spacing-8); font-size: var(--text-caption);">
+        Smart India Hackathon 2026 &nbsp;·&nbsp; Digital Agriculture Solution for Indian Farmers
+      </p>
+    </div>
+  </footer>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- SCRIPTS -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/offline.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.initOfflineSupport();
+
+      // Auth state check: If already logged in, redirect to index.html
+      window.auth.onAuthStateChanged((user) => {
+        if (user) {
+          window.location.href = 'index.html';
+        }
+      });
+
+      const form = document.getElementById('standalone-signup-form');
+      const errorEl = document.getElementById('signup-error');
+      const successEl = document.getElementById('signup-success');
+      const submitBtn = document.getElementById('signup-submit-btn');
+
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const name = document.getElementById('signup-name').value.trim();
+          const email = document.getElementById('signup-email').value.trim();
+          const password = document.getElementById('signup-password').value;
+
+          if (errorEl) { errorEl.classList.remove('show'); errorEl.textContent = ''; }
+          if (successEl) { successEl.style.display = 'none'; }
+
+          if (!name || name.length < 2) {
+            errorEl.textContent = 'Please enter your full name.';
+            errorEl.classList.add('show');
+            return;
+          }
+
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Creating Account & Sending Email…';
+
+          try {
+            const cred = await window.auth.createUserWithEmailAndPassword(email, password);
+            const user = cred.user || window.auth.currentUser;
+
+            if (user && user.sendEmailVerification) {
+              try { await user.sendEmailVerification(); } catch (ve) { console.warn(ve); }
+            }
+
+            if (successEl) {
+              successEl.textContent = `Account created! Verification link sent to ${email}. Redirecting…`;
+              successEl.style.display = 'block';
+            }
+
+            setTimeout(() => {
+              window.location.href = 'index.html';
+            }, 1800);
+
+          } catch (err) {
+            if (errorEl) {
+              errorEl.textContent = err.message || 'Account creation failed. Please check details.';
+              errorEl.classList.add('show');
+            }
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Create Account & Send Verification Email';
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

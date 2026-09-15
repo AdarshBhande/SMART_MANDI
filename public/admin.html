@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Smart Mandi Operational Dashboard — 11-Module Paddy Procurement Control Center" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#1B5E20" />
+  <title>Operational Dashboard — Smart Mandi Token System</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+
+  <!-- Firebase SDK Compat v9 -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
+</head>
+<body>
+
+  <!-- OFFLINE BANNER -->
+  <div id="offline-banner" class="offline-banner" role="alert" aria-live="polite">
+    📡 You are offline — dashboard data may be stale
+  </div>
+
+  <!-- AUTHENTICATION PORTAL -->
+  <div id="login-page" class="login-page" role="main" aria-label="Official login portal">
+    <div class="login-card">
+      <div class="login-card__header">
+        <div class="login-card__logo icon-box icon-box--lg" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M6 18V11"/><path d="M10 18V11"/><path d="M14 18V11"/><path d="M18 18V11"/><path d="M12 3L2 8h20L12 3z"/></svg>
+        </div>
+        <h1 class="login-card__title" id="auth-card-title">Mandi Official Portal</h1>
+        <p class="login-card__subtitle" id="auth-card-subtitle">11-Module Operational Control Workspace</p>
+
+        <!-- Auth Mode Filter Tabs -->
+        <div class="filter-tabs" style="margin-top: var(--spacing-16); justify-content: center; background: var(--color-veil); padding: 4px; border-radius: var(--radius-buttons);">
+          <button id="tab-signin" class="filter-tab active" type="button" onclick="switchAuthTab('signin')">Sign In</button>
+          <button id="tab-signup" class="filter-tab" type="button" onclick="switchAuthTab('signup')">Create Account</button>
+        </div>
+      </div>
+
+      <div class="login-card__body">
+        <div id="login-error" class="login-error" role="alert" aria-live="polite"></div>
+        <div id="login-success" class="badge badge--success" style="display:none; margin-bottom:var(--spacing-16); width:100%; text-align:center; padding: var(--spacing-12);" role="status"></div>
+
+        <!-- MODE 1: SIGN IN -->
+        <form id="login-form" aria-label="Sign in form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="admin-email">Email Address</label>
+            <input type="email" id="admin-email" class="form-input" placeholder="official@mandi.gov.in" required autocomplete="email" />
+          </div>
+          <div class="form-group">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--spacing-8);">
+              <label class="form-label" for="admin-password" style="margin-bottom:0;">Password</label>
+              <a href="#" onclick="switchAuthTab('forgot'); return false;" style="font-size:var(--text-caption); color:var(--color-forest-ink); font-weight:500; text-decoration:none;">Forgot password?</a>
+            </div>
+            <input type="password" id="admin-password" class="form-input" placeholder="Enter password" required autocomplete="current-password" />
+          </div>
+          <button type="submit" id="login-btn" class="btn btn--primary btn--lg btn--full">Sign In</button>
+        </form>
+
+        <!-- MODE 2: CREATE ACCOUNT -->
+        <form id="signup-form" style="display:none;" aria-label="Create account form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="signup-name">Full Name</label>
+            <input type="text" id="signup-name" class="form-input" placeholder="Official Full Name" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signup-email">Email Address</label>
+            <input type="email" id="signup-email" class="form-input" placeholder="your.name@mandi.gov.in" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signup-password">Password</label>
+            <input type="password" id="signup-password" class="form-input" placeholder="Minimum 6 characters" required minlength="6" />
+          </div>
+          <button type="submit" id="signup-btn" class="btn btn--primary btn--lg btn--full">Create Account</button>
+        </form>
+
+        <!-- MODE 3: FORGOT PASSWORD -->
+        <form id="forgot-form" style="display:none;" aria-label="Reset password form" novalidate>
+          <p style="font-size:var(--text-body-sm); color:var(--color-slate); margin-bottom:var(--spacing-16);">
+            Enter your account email address to receive a password reset link.
+          </p>
+          <div class="form-group">
+            <label class="form-label" for="forgot-email">Email Address</label>
+            <input type="email" id="forgot-email" class="form-input" placeholder="your.name@mandi.gov.in" required />
+          </div>
+          <button type="submit" id="forgot-btn" class="btn btn--primary btn--lg btn--full" style="margin-bottom:var(--spacing-12);">Send Reset Link</button>
+          <button type="button" class="btn btn--secondary btn--full" onclick="switchAuthTab('signin')">Back to Sign In</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD WORKSPACE -->
+  <div id="admin-layout" class="admin-layout" role="main" aria-label="Admin Operational Dashboard">
+
+    <!-- TOP BAR HEADER -->
+    <header class="admin-topbar" role="banner">
+      <div class="admin-topbar__brand">
+        <div class="admin-topbar__icon icon-box icon-box--sm" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M6 18V11"/><path d="M10 18V11"/><path d="M14 18V11"/><path d="M18 18V11"/><path d="M12 3L2 8h20L12 3z"/></svg>
+        </div>
+        <div>
+          <div class="admin-topbar__title">Smart Mandi Operational Control Center</div>
+          <div class="admin-topbar__subtitle" id="topbar-sub">11-Module Operations & Procurement Hub</div>
+        </div>
+      </div>
+      <div class="admin-topbar__actions">
+        <!-- Role Selector Toggle for Testing & Operations -->
+        <div class="role-selector" title="Active Role">
+          <label for="role-select" style="font-size:var(--text-caption); font-weight:600; color:var(--color-fog);">Role:</label>
+          <select id="role-select" class="form-select form-select--sm">
+            <option value="Admin">Admin</option>
+            <option value="Operator">Operator</option>
+          </select>
+        </div>
+
+        <a href="index.html" class="btn btn--secondary btn--sm">Booking Portal</a>
+        <a href="tracker.html" class="btn btn--secondary btn--sm">Live Tracker</a>
+
+        <div class="admin-user-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span id="admin-user-email">official@mandi.gov.in</span>
+        </div>
+        <button id="logout-btn" class="btn btn--secondary btn--sm" aria-label="Sign out">Sign Out</button>
+      </div>
+    </header>
+
+    <!-- MODULE NAVIGATION BAR -->
+    <nav class="module-nav" aria-label="11 Modules Navigation">
+      <div class="module-nav__inner">
+        <button class="nav-tab active" data-module="overview" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Overview
+        </button>
+        <button class="nav-tab admin-only" data-module="centers" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>
+          Centers
+        </button>
+        <button class="nav-tab" data-module="appointments" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Appointments
+        </button>
+        <button class="nav-tab" data-module="checkin" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Gate Check-In
+        </button>
+        <button class="nav-tab" data-module="queue" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          Live Queue
+        </button>
+        <button class="nav-tab" data-module="weighment" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h18"/></svg>
+          Weighment
+        </button>
+        <button class="nav-tab" data-module="quality" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          Quality Inspection
+        </button>
+        <button class="nav-tab" data-module="payments" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Payments
+        </button>
+        <button class="nav-tab admin-only" data-module="analytics" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Analytics
+        </button>
+        <button class="nav-tab admin-only" data-module="forecast" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          AI Forecast
+        </button>
+        <button class="nav-tab admin-only" data-module="settings" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </button>
+      </div>
+    </nav>
+
+    <!-- MAIN MODULE WORKSPACE CONTAINER -->
+    <div class="admin-main">
+
+      <!-- ═══════════════════════════════════════
+           MODULE 1: OVERVIEW
+      ═══════════════════════════════════════ -->
+      <section id="module-overview" class="admin-module active">
+        <!-- Date & Quick Bar -->
+        <div class="date-info-bar">
+          <div>
+            <span class="date-info-bar__text">Operational Date: </span>
+            <span class="date-info-bar__date" id="overview-today-date">Today</span>
+          </div>
+          <div style="display:flex; gap:var(--spacing-12); flex-wrap:wrap;">
+            <button id="create-token-btn" class="btn btn--primary btn--sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Create Token Manually
+            </button>
+            <button id="export-csv-btn" class="btn btn--secondary btn--sm">Export CSV Data</button>
+          </div>
+        </div>
+
+        <!-- KPI Grid 1 -->
+        <div class="stats-bar">
+          <div class="stat-card">
+            <div class="stat-card__icon icon-box icon-box--primary">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg>
+            </div>
+            <div>
+              <div class="stat-card__value" id="stat-ov-total">0</div>
+              <div class="stat-card__label">Total Appointments</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card__icon icon-box icon-box--info">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div>
+              <div class="stat-card__value" id="stat-ov-confirmed">0</div>
+              <div class="stat-card__label">Confirmed Bookings</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card__icon icon-box icon-box--warning">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            </div>
+            <div>
+              <div class="stat-card__value" id="stat-ov-checkedin">0</div>
+              <div class="stat-card__label">Checked-In Farmers</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card__icon icon-box">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <div class="stat-card__value" id="stat-ov-waiting">0</div>
+              <div class="stat-card__label">Waiting in Queue</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI Grid 2 -->
+        <div class="stats-bar" style="margin-top:var(--spacing-12);">
+          <div class="stat-card">
+            <div class="stat-card__icon icon-box icon-box--info">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+              <div class="stat-card__value" id="stat-ov-processing">0</div>
+              <div class="stat-card__label">Currently Processing</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card__icon icon-box icon-box--primary">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+            <div>
+              <div class="stat-card__value" id="stat-ov-completed">0</div>
+              <div class="stat-card__label">Completed Procurements</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card__icon icon-box icon-box--danger">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </div>
+            <div>
+              <div class="stat-card__value" id="stat-ov-noshow">0 / 0</div>
+              <div class="stat-card__label">No-Shows / Cancelled</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card__icon icon-box">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/></svg>
+            </div>
+            <div>
+              <div class="stat-card__value" id="stat-ov-paddy-qty">0 / 0 Qtl</div>
+              <div class="stat-card__label">Paddy Processed / Scheduled</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- OPERATIONAL ALERTS & NOTIFICATIONS -->
+        <div class="panel" style="margin-top:var(--spacing-20);">
+          <div class="panel__header">
+            <h3 class="panel__title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px; color:var(--color-warning);"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Live Operational Alerts & System Health
+            </h3>
+          </div>
+          <div class="panel__body" id="overview-alerts-container">
+            <div class="alert alert--info">Loading operational system status...</div>
+          </div>
+        </div>
+
+        <!-- CENTERS OPERATIONAL STATUS SUMMARY -->
+        <div class="panel" style="margin-top:var(--spacing-20);">
+          <div class="panel__header">
+            <h3 class="panel__title">Procurement Centers Operational Status</h3>
+          </div>
+          <div class="panel__body">
+            <div class="token-table-wrapper">
+              <table class="token-table">
+                <thead>
+                  <tr>
+                    <th>Center Name</th>
+                    <th>District</th>
+                    <th>Status</th>
+                    <th>Weighbridges</th>
+                    <th>Max Farmers/Slot</th>
+                    <th>Max Qty/Slot</th>
+                    <th>Utilization</th>
+                  </tr>
+                </thead>
+                <tbody id="overview-centers-tbody">
+                  <!-- Dynamic centers overview -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           MODULE 2: CENTERS (Admin Only)
+      ═══════════════════════════════════════ -->
+      <section id="module-centers" class="admin-module">
+        <div class="panel__header" style="justify-content:space-between; display:flex; margin-bottom:var(--spacing-16); align-items:center;">
+          <div>
+            <h2 class="panel__title">Procurement Centers Directory & Control</h2>
+            <p class="panel__subtitle">Configure operational status, capacity thresholds, weighbridges, and timing rules.</p>
+          </div>
+          <div>
+            <button id="add-center-btn" class="btn btn--primary btn--sm" type="button">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              + Add New Center
+            </button>
+          </div>
+        </div>
+
+        <div class="token-table-wrapper panel">
+          <table class="token-table">
+            <thead>
+              <tr>
+                <th>Center ID</th>
+                <th>Center Name & Address</th>
+                <th>District</th>
+                <th>Status</th>
+                <th>Working Hours</th>
+                <th>Limits (Farmer/Qty)</th>
+                <th>Weighbridges</th>
+                <th>Avg Proc Time</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="centers-table-body">
+              <!-- Loaded dynamically from /centers -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           MODULE 3: APPOINTMENTS
+      ═══════════════════════════════════════ -->
+      <section id="module-appointments" class="admin-module">
+        <div class="queue-panel">
+          <div class="queue-panel__header">
+            <div>
+              <h2 class="queue-panel__title">Appointments Master List</h2>
+              <p class="panel__subtitle">Searchable register of all paddy procurement tokens.</p>
+            </div>
+            <div class="queue-panel__controls">
+              <input type="search" id="appointments-search" class="form-input search-bar__input" placeholder="Search token, farmer name, mobile..." />
+            </div>
+          </div>
+
+          <!-- Filters Bar -->
+          <div class="filter-tabs" style="gap:var(--spacing-12); align-items:center;">
+            <select id="app-filter-center" class="form-select form-select--sm">
+              <option value="all">All Centers</option>
+            </select>
+            <input type="date" id="app-filter-date" class="form-input form-input--sm" style="width:auto;" />
+            <select id="app-filter-booking" class="form-select form-select--sm">
+              <option value="all">All Booking Statuses</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <select id="app-filter-arrival" class="form-select form-select--sm">
+              <option value="all">All Arrival Statuses</option>
+              <option value="pending">Pending Arrival</option>
+              <option value="early">Early</option>
+              <option value="on_time">On Time</option>
+              <option value="late">Late</option>
+              <option value="no_show">No Show</option>
+            </select>
+            <button id="app-reset-filters" class="btn btn--outline btn--sm">Reset Filters</button>
+          </div>
+
+          <div class="token-table-wrapper">
+            <table class="token-table">
+              <thead>
+                <tr>
+                  <th>Token ID</th>
+                  <th>Farmer Name</th>
+                  <th>Center</th>
+                  <th>Date & Slot</th>
+                  <th>Estimated Qty</th>
+                  <th>Booking</th>
+                  <th>Arrival</th>
+                  <th>Queue</th>
+                  <th>Quality</th>
+                  <th>Payment</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="appointments-tbody">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+            <div id="appointments-empty" class="table-empty" style="display:none;">No matching appointments found.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           MODULE 4: GATE CHECK-IN
+      ═══════════════════════════════════════ -->
+      <section id="module-checkin" class="admin-module">
+        <div class="panel">
+          <div class="panel__header">
+            <h2 class="panel__title">Operational Gate Arrival Check-In</h2>
+            <p class="panel__subtitle">Verify scheduled appointments, classify arrival time, and emit check-in events.</p>
+          </div>
+          <div class="panel__body">
+            <!-- Search & Scan Box -->
+            <div class="form-row--2" style="max-width:700px; margin-bottom:var(--spacing-24);">
+              <div class="form-group">
+                <label class="form-label" for="checkin-token-input">Token ID / Farmer Mobile</label>
+                <input type="text" id="checkin-token-input" class="form-input" placeholder="e.g. MANDI-20260907-ABCD or 9876543210" />
+              </div>
+              <div style="display:flex; align-items:flex-end; gap:var(--spacing-12);">
+                <button id="checkin-find-btn" class="btn btn--primary" style="height:42px;">Verify Token</button>
+              </div>
+            </div>
+
+            <!-- Verified Token Details Container -->
+            <div id="checkin-card-container" style="display:none;">
+              <div class="card" style="border-left: 4px solid var(--color-forest-ink); background:var(--color-veil);">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:var(--spacing-16);">
+                  <div>
+                    <span class="badge badge--muted" id="ci-token-id">TOKEN-ID</span>
+                    <h3 id="ci-farmer-name" style="margin-top:var(--spacing-8);">Farmer Name</h3>
+                    <div style="font-size:var(--text-body-sm); color:var(--color-slate); margin-top:var(--spacing-4);">
+                      Mobile: <strong id="ci-mobile">---</strong> | Crop: <strong id="ci-crop">Paddy</strong> | Qty: <strong id="ci-qty">0 Qtl</strong>
+                    </div>
+                    <div style="font-size:var(--text-body-sm); color:var(--color-slate); margin-top:var(--spacing-4);">
+                      Center: <strong id="ci-center">Center Name</strong> | Slot: <strong id="ci-slot">8AM-10AM</strong> | Date: <strong id="ci-date">2026-09-07</strong>
+                    </div>
+                  </div>
+
+                  <div style="text-align:right;">
+                    <div class="detail-item__label">Calculated Arrival Status</div>
+                    <div id="ci-arrival-classification" style="margin-top:var(--spacing-4);">
+                      <span class="badge badge--warning">Calculating...</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin-top:var(--spacing-20); display:flex; gap:var(--spacing-12); flex-wrap:wrap; border-top:1px solid var(--color-cloud); padding-top:var(--spacing-16);">
+                  <button id="ci-confirm-checkin-btn" class="btn btn--primary">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>
+                    Confirm Farmer Gate Check-In
+                  </button>
+                  <button id="ci-mark-noshow-btn" class="btn btn--danger btn--outline">Mark as No-Show</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Check-ins Log -->
+            <div style="margin-top:var(--spacing-28);">
+              <h3>Today's Gate Check-In Register</h3>
+              <div class="token-table-wrapper" style="margin-top:var(--spacing-12);">
+                <table class="token-table">
+                  <thead>
+                    <tr>
+                      <th>Token ID</th>
+                      <th>Farmer Name</th>
+                      <th>Center</th>
+                      <th>Time Slot</th>
+                      <th>Arrival Classification</th>
+                      <th>Check-In Time</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="checkin-recent-tbody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           MODULE 5: LIVE QUEUE
+      ═══════════════════════════════════════ -->
+      <section id="module-queue" class="admin-module">
+        <div class="queue-panel">
+          <div class="queue-panel__header">
+            <div>
+              <h2 class="queue-panel__title">
+                Center Scoped Live Queue Engine
+                <span class="live-indicator"><span class="live-dot"></span> LIVE</span>
+              </h2>
+              <p class="panel__subtitle">Control token progression by Center, Date, and Time Slot.</p>
+            </div>
+
+            <!-- Scope Controls -->
+            <div class="queue-panel__controls">
+              <select id="queue-center-select" class="form-select">
+                <!-- Center options -->
+              </select>
+              <input type="date" id="queue-date-select" class="form-input" style="width:auto;" />
+              <select id="queue-slot-select" class="form-select">
+                <option value="all">All Time Slots</option>
+                <option value="6AM-8AM">6:00 AM – 8:00 AM</option>
+                <option value="8AM-10AM">8:00 AM – 10:00 AM</option>
+                <option value="10AM-12PM">10:00 AM – 12:00 PM</option>
+                <option value="12PM-2PM">12:00 PM – 2:00 PM</option>
+                <option value="2PM-4PM">2:00 PM – 4:00 PM</option>
+                <option value="4PM-6PM">4:00 PM – 6:00 PM</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Queue Action Toolbar -->
+          <div class="filter-tabs" style="justify-content:space-between; align-items:center;">
+            <div style="font-size:var(--text-body-sm); font-weight:600; color:var(--color-graphite);">
+              Active Queue Tokens
+            </div>
+            <div>
+              <button id="voice-toggle-btn" class="btn btn--secondary btn--sm">🔊 Voice Announcements</button>
+            </div>
+          </div>
+
+          <div class="token-table-wrapper">
+            <table class="token-table">
+              <thead>
+                <tr>
+                  <th>Pos</th>
+                  <th>Token ID</th>
+                  <th>Farmer Name</th>
+                  <th>Arrival</th>
+                  <th>Queue Status</th>
+                  <th>Processing</th>
+                  <th>Station</th>
+                  <th>Est. Wait</th>
+                  <th>Operational Actions</th>
+                </tr>
+              </thead>
+              <tbody id="queue-tbody">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+            <div id="queue-empty" class="table-empty" style="display:none;">No active tokens in queue for this center/slot.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           MODULE 6: WEIGHMENT
+      ═══════════════════════════════════════ -->
+      <section id="module-weighment" class="admin-module">
+        <div class="panel">
+          <div class="panel__header" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h2 class="panel__title">Weighbridge Operational Desk</h2>
+              <p class="panel__subtitle">Record verified gross and net paddy weight in Quintals.</p>
+            </div>
+            <div>
+              <select id="weighbridge-station-filter" class="form-select">
+                <option value="all">All Weighbridge Stations</option>
+                <option value="Weighbridge 1">Weighbridge 1</option>
+                <option value="Weighbridge 2">Weighbridge 2</option>
+                <option value="Weighbridge 3">Weighbridge 3</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="panel__body">
+            <div class="token-table-wrapper">
+              <table class="token-table">
+                <thead>
+                  <tr>
+                    <th>Token ID</th>
+                    <th>Farmer Name</th>
+                    <th>Estimated Qty (Qtl)</th>
+                    <th>Actual Qty (Qtl)</th>
+                    <th>Weighment Status</th>
+                    <th>Station</th>
+                    <th>Operator</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="weighment-tbody">
+                  <!-- Loaded dynamically -->
+                </tbody>
+              </table>
+              <div id="weighment-empty" class="table-empty" style="display:none;">No tokens pending weighment.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           MODULE 7: QUALITY INSPECTION
+      ═══════════════════════════════════════ -->
+      <section id="module-quality" class="admin-module">
+        <div class="panel">
+          <div class="panel__header">
+            <h2 class="panel__title">Paddy Quality Assessment & Inspection</h2>
+            <p class="panel__subtitle">Record moisture percentage, foreign matter, grade, and decision.</p>
+          </div>
+
+          <div class="panel__body">
+            <div class="token-table-wrapper">
+              <table class="token-table">
+                <thead>
+                  <tr>
+                    <th>Token ID</th>
+                    <th>Farmer Name</th>
+                    <th>Crop / Variety</th>
+                    <th>Moisture (%)</th>
+                    <th>Foreign Matter (%)</th>
+                    <th>Grade</th>
+                    <th>Decision</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="quality-tbody">
+                  <!-- Loaded dynamically -->
+                </tbody>
+              </table>
+              <div id="quality-empty" class="table-empty" style="display:none;">No tokens pending quality assessment.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           MODULE 8: PAYMENTS
+      ═══════════════════════════════════════ -->
+      <section id="module-payments" class="admin-module">
+        <!-- Payments KPI Header -->
+        <div class="stats-bar">
+          <div class="stat-card">
+            <div>
+              <div class="stat-card__value" id="pay-kpi-pending">₹0</div>
+              <div class="stat-card__label">Pending Payments</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div>
+              <div class="stat-card__value" id="pay-kpi-approved">₹0</div>
+              <div class="stat-card__label">Approved Payments</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div>
+              <div class="stat-card__value" id="pay-kpi-completed">₹0</div>
+              <div class="stat-card__label">Completed Disbursals</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:var(--spacing-16);">
+          <div class="panel__header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--spacing-12);">
+            <div>
+              <h2 class="panel__title">Direct Procurement Payment Status Tracker</h2>
+              <p class="panel__subtitle">Track MSP disbursement pipeline for checked-in farmers (Arrived Gate ➔ Quality Approved ➔ DBT Paid).</p>
+            </div>
+            <div class="filter-tabs" id="payment-filter-tabs">
+              <button class="filter-tab active" data-pay-filter="all">All Arrived Tokens</button>
+              <button class="filter-tab" data-pay-filter="pending">Pending Queue</button>
+              <button class="filter-tab" data-pay-filter="completed">Completed Disbursals</button>
+            </div>
+          </div>
+          <div class="panel__body">
+            <div class="token-table-wrapper">
+              <table class="token-table">
+                <thead>
+                  <tr>
+                    <th>Token ID</th>
+                    <th>Farmer Name</th>
+                    <th>Arrival Status</th>
+                    <th>Procured Qty (Qtl)</th>
+                    <th>Amount (₹)</th>
+                    <th>Payment Status</th>
+                    <th>Reference ID</th>
+                    <th>Individual Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="payments-tbody">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+              <div id="payments-empty" class="table-empty" style="display:none;">No payments found for this filter tab.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           MODULE 9: ANALYTICS (Admin Only)
+      ═══════════════════════════════════════ -->
+      <section id="module-analytics" class="admin-module">
+        <div class="panel">
+          <div class="panel__header" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h2 class="panel__title">Real-Time Operational Analytics & Performance</h2>
+              <p class="panel__subtitle">Metrics computed from authoritative database records.</p>
+            </div>
+            <div style="display:flex; gap:var(--spacing-12);">
+              <select id="analytics-center-select" class="form-select form-select--sm">
+                <option value="all">All Centers</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="panel__body">
+            <div id="analytics-content-container">
+              <!-- Dynamically populated analytics metrics -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           MODULE 10: AI FORECAST (Admin Only)
+      ═══════════════════════════════════════ -->
+      <section id="module-forecast" class="admin-module">
+        <div class="panel">
+          <div class="panel__header">
+            <h2 class="panel__title">AI Demand & Capacity Advisory (Preparation Layer)</h2>
+            <p class="panel__subtitle">Predictive models layer for arrival volume, bottleneck anticipation, and center recommendations.</p>
+          </div>
+          <div class="panel__body">
+            <div id="forecast-status-container" class="alert alert--info" style="margin-bottom:var(--spacing-20);">
+              Forecast unavailable — collecting historical data
+            </div>
+
+            <div class="detail-grid">
+              <div class="card">
+                <h4>Historical Booking Density</h4>
+                <div id="fc-historical-count" style="font-size:var(--text-heading); font-weight:700; margin-top:var(--spacing-8);">0 Tokens</div>
+              </div>
+              <div class="card">
+                <h4>Procurement Volume Input</h4>
+                <div id="fc-historical-qty" style="font-size:var(--text-heading); font-weight:700; margin-top:var(--spacing-8);">0 Quintals</div>
+              </div>
+              <div class="card">
+                <h4>Center Utilization Pattern</h4>
+                <div id="fc-utilization-pattern" style="font-size:var(--text-subheading); font-weight:600; margin-top:var(--spacing-8);">Normal Distribution</div>
+              </div>
+              <div class="card">
+                <h4>No-Show Risk Indicator</h4>
+                <div id="fc-noshow-rate" style="font-size:var(--text-heading); font-weight:700; color:var(--color-primary); margin-top:var(--spacing-8);">0%</div>
+              </div>
+            </div>
+
+            <!-- AI Operational Advisory Summary -->
+            <div class="card" style="margin-top:var(--spacing-20); background:var(--color-paper); border:1px solid var(--color-cloud);">
+              <h3 style="font-size:var(--text-body); font-weight:700; color:var(--color-graphite); margin-bottom:var(--spacing-8);">🤖 Operational AI Advisory Summaries</h3>
+              <div style="font-size:var(--text-caption); color:var(--color-fog); margin-bottom:var(--spacing-12);">Generate structured AI explanations of current operational bottlenecks, congestion, and daily procurement flow.</div>
+              <div style="display:flex; gap:var(--spacing-8); margin-bottom:var(--spacing-12); flex-wrap:wrap;">
+                <button type="button" class="btn btn--outline btn--sm" onclick="window.askAdminAI('summary')">Explain Today's Operations</button>
+                <button type="button" class="btn btn--outline btn--sm" onclick="window.askAdminAI('congestion')">Analyze Queue Congestion</button>
+                <button type="button" class="btn btn--outline btn--sm" onclick="window.askAdminAI('status')">Summarize Center Statuses</button>
+              </div>
+              <div id="admin-ai-response" class="alert alert--info" style="display:none; font-size:var(--text-body-sm);"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           MODULE 11: SETTINGS (Admin Only)
+      ═══════════════════════════════════════ -->
+      <section id="module-settings" class="admin-module">
+        <div class="panel">
+          <div class="panel__header">
+            <h2 class="panel__title">Admin System Settings & Operational Thresholds</h2>
+            <p class="panel__subtitle">Configure Mandi center default limits and quality procurement standards.</p>
+          </div>
+          <div class="panel__body">
+            <form id="settings-form" novalidate style="max-width:750px;">
+              <h3>Center Operational Defaults</h3>
+              <div class="form-row--2" style="margin-top:var(--spacing-16);">
+                <div class="form-group">
+                  <label class="form-label" for="st-slot-duration">Slot Duration (Minutes)</label>
+                  <input type="number" id="st-slot-duration" class="form-input" value="120" min="30" max="480" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="st-max-farmers">Max Farmers Per Slot</label>
+                  <input type="number" id="st-max-farmers" class="form-input" value="10" min="1" max="100" required />
+                </div>
+              </div>
+              <div class="form-row--2">
+                <div class="form-group">
+                  <label class="form-label" for="st-max-qty">Max Quantity Per Slot (Quintals)</label>
+                  <input type="number" id="st-max-qty" class="form-input" value="500" min="10" max="5000" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="st-weighbridges">Active Weighbridges Per Center</label>
+                  <input type="number" id="st-weighbridges" class="form-input" value="3" min="1" max="10" required />
+                </div>
+              </div>
+              <div class="form-row--2">
+                <div class="form-group">
+                  <label class="form-label" for="st-grace-period">Grace Period (Minutes)</label>
+                  <input type="number" id="st-grace-period" class="form-input" value="15" min="0" max="120" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="st-noshow-threshold">No-Show Expiration Threshold (Minutes)</label>
+                  <input type="number" id="st-noshow-threshold" class="form-input" value="60" min="15" max="300" required />
+                </div>
+              </div>
+
+              <h3 style="margin-top:var(--spacing-28);">Quality Standards & Procurement Thresholds</h3>
+              <div class="form-row--2" style="margin-top:var(--spacing-16);">
+                <div class="form-group">
+                  <label class="form-label" for="st-moisture-thresh">Max Moisture Threshold (%)</label>
+                  <input type="number" id="st-moisture-thresh" class="form-input" value="14.0" step="0.1" min="1" max="30" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="st-foreign-thresh">Max Foreign Matter Threshold (%)</label>
+                  <input type="number" id="st-foreign-thresh" class="form-input" value="2.0" step="0.1" min="0" max="10" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="st-msp-rate">Minimum Support Price (MSP) per Quintal (₹)</label>
+                <input type="number" id="st-msp-rate" class="form-input" value="2300" min="100" max="100000" required />
+              </div>
+
+              <div style="margin-top:var(--spacing-24);">
+                <button type="submit" class="btn btn--primary">Save Operational Settings</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- .admin-main -->
+  </div><!-- #admin-layout -->
+
+
+  <!-- ═══════════════════════════════════════
+       MODAL 1: VIEW DETAILS MODAL
+  ═══════════════════════════════════════ -->
+  <div id="details-modal-overlay" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 class="modal__title">Token Full Details & State Audit</h3>
+        <button id="details-modal-close" class="modal__close">✕</button>
+      </div>
+      <div class="modal__body">
+        <div style="font-family:monospace; font-size:var(--text-heading-sm); font-weight:700; color:var(--color-forest-ink); margin-bottom:var(--spacing-12);" id="d-token-id">—</div>
+        <div class="detail-grid">
+          <div>
+            <div class="detail-item__label">Farmer Name</div>
+            <div class="detail-item__value" id="d-farmer">—</div>
+          </div>
+          <div>
+            <div class="detail-item__label">Mobile</div>
+            <div class="detail-item__value" id="d-mobile">—</div>
+          </div>
+          <div>
+            <div class="detail-item__label">Crop & Quantity</div>
+            <div class="detail-item__value" id="d-quantity">—</div>
+          </div>
+          <div>
+            <div class="detail-item__label">Center</div>
+            <div class="detail-item__value" id="d-center">—</div>
+          </div>
+          <div>
+            <div class="detail-item__label">Date & Time Slot</div>
+            <div class="detail-item__value" id="d-slot">—</div>
+          </div>
+          <div>
+            <div class="detail-item__label">Overall Status</div>
+            <div class="detail-item__value" id="d-status">—</div>
+          </div>
+        </div>
+
+        <h4 style="margin-top:var(--spacing-20); font-size:var(--text-caption); text-transform:uppercase; color:var(--color-fog);">
+          7-State Machine Status Summary
+        </h4>
+        <div class="detail-grid" style="margin-top:var(--spacing-8); background:var(--color-veil); padding:var(--spacing-12); border-radius:var(--radius-cards);">
+          <div>Booking: <span id="d-state-booking" class="badge">---</span></div>
+          <div>Arrival: <span id="d-state-arrival" class="badge">---</span></div>
+          <div>Queue: <span id="d-state-queue" class="badge">---</span></div>
+          <div>Weighment: <span id="d-state-weighment" class="badge">---</span></div>
+          <div>Quality: <span id="d-state-quality" class="badge">---</span></div>
+          <div>Procurement: <span id="d-state-procurement" class="badge">---</span></div>
+          <div>Payment: <span id="d-state-payment" class="badge">---</span></div>
+        </div>
+
+        <!-- Audit History Timeline -->
+        <div class="stages-timeline">
+          <h4 style="font-size:var(--text-caption); font-weight:700; color:var(--color-fog);">AUDIT TRAIL LOGS</h4>
+          <div id="d-audit-logs" style="margin-top:var(--spacing-8);">Loading audit history...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════
+       MODAL 2: WEIGHMENT ENTRY MODAL
+  ═══════════════════════════════════════ -->
+  <div id="weighment-modal-overlay" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 class="modal__title">Weighbridge Scale Record Entry</h3>
+        <button id="weighment-modal-close" class="modal__close">✕</button>
+      </div>
+      <div class="modal__body">
+        <form id="weighment-form" novalidate>
+          <input type="hidden" id="wm-token-id" />
+          <div style="margin-bottom:var(--spacing-16);">
+            Token: <strong id="wm-display-token">---</strong> | Farmer: <strong id="wm-display-farmer">---</strong>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="wm-actual-qty">Actual Weight Recorded (Quintals) <span class="required">*</span></label>
+            <input type="number" id="wm-actual-qty" class="form-input" step="0.1" min="0.1" max="5000" placeholder="e.g. 48.5" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="wm-station">Weighbridge Station <span class="required">*</span></label>
+            <select id="wm-station" class="form-select" required>
+              <option value="Weighbridge 1">Weighbridge 1</option>
+              <option value="Weighbridge 2">Weighbridge 2</option>
+              <option value="Weighbridge 3">Weighbridge 3</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="wm-operator">Operator ID / Name</label>
+            <input type="text" id="wm-operator" class="form-input" value="WB-Operator-01" required />
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:var(--spacing-12); margin-top:var(--spacing-20);">
+            <button type="button" class="btn btn--outline" onclick="closeModal('weighment-modal-overlay')">Cancel</button>
+            <button type="submit" class="btn btn--primary">Complete Weighment Entry</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════
+       MODAL 3: QUALITY INSPECTION MODAL
+  ═══════════════════════════════════════ -->
+  <div id="quality-modal-overlay" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 class="modal__title">Paddy Quality Assessment Form</h3>
+        <button id="quality-modal-close" class="modal__close">✕</button>
+      </div>
+      <div class="modal__body">
+        <form id="quality-form" novalidate>
+          <input type="hidden" id="qm-token-id" />
+          <div style="margin-bottom:var(--spacing-16);">
+            Token: <strong id="qm-display-token">---</strong> | Farmer: <strong id="qm-display-farmer">---</strong>
+          </div>
+          <div class="form-row--2">
+            <div class="form-group">
+              <label class="form-label" for="qm-moisture">Moisture Percent (%) <span class="required">*</span></label>
+              <input type="number" id="qm-moisture" class="form-input" step="0.1" min="0" max="100" placeholder="e.g. 13.5" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="qm-foreign">Foreign Matter (%) <span class="required">*</span></label>
+              <input type="number" id="qm-foreign" class="form-input" step="0.1" min="0" max="100" placeholder="e.g. 1.2" required />
+            </div>
+          </div>
+          <div class="form-row--2">
+            <div class="form-group">
+              <label class="form-label" for="qm-grade">Grain Grade Classification <span class="required">*</span></label>
+              <select id="qm-grade" class="form-select" required>
+                <option value="Grade A">Grade A (Fine)</option>
+                <option value="Common">Common (Medium)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="qm-decision">Inspection Decision <span class="required">*</span></label>
+              <select id="qm-decision" class="form-select" required>
+                <option value="accepted">Accepted</option>
+                <option value="needs_review">Needs Review</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="qm-remarks">Quality Inspector Remarks</label>
+            <input type="text" id="qm-remarks" class="form-input" placeholder="e.g. Grain moisture within standard threshold" />
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:var(--spacing-12); margin-top:var(--spacing-20);">
+            <button type="button" class="btn btn--outline" onclick="closeModal('quality-modal-overlay')">Cancel</button>
+            <button type="submit" class="btn btn--primary">Submit Quality Decision</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════
+       MODAL 4: EDIT CENTER MODAL (Admin Only)
+  ═══════════════════════════════════════ -->
+  <div id="center-modal-overlay" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 class="modal__title">Update Center Configuration</h3>
+        <button id="center-modal-close" class="modal__close">✕</button>
+      </div>
+      <div class="modal__body">
+        <form id="center-config-form" novalidate>
+          <input type="hidden" id="ec-center-id" />
+          <div class="form-group">
+            <label class="form-label" for="ec-name">Center Name</label>
+            <input type="text" id="ec-name" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ec-status">Operational Status <span class="required">*</span></label>
+            <select id="ec-status" class="form-select" required>
+              <option value="active">Active</option>
+              <option value="busy">Busy</option>
+              <option value="full">Full</option>
+              <option value="paused">Paused</option>
+              <option value="closed">Closed</option>
+              <option value="equipment_issue">Equipment Issue</option>
+            </select>
+          </div>
+          <div class="form-row--2">
+            <div class="form-group">
+              <label class="form-label" for="ec-max-farmers">Max Farmers/Slot</label>
+              <input type="number" id="ec-max-farmers" class="form-input" min="1" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ec-max-qty">Max Qty/Slot (Qtl)</label>
+              <input type="number" id="ec-max-qty" class="form-input" min="10" required />
+            </div>
+          </div>
+          <div class="form-row--2">
+            <div class="form-group">
+              <label class="form-label" for="ec-weighbridges">Active Weighbridges</label>
+              <input type="number" id="ec-weighbridges" class="form-input" min="1" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ec-avg-time">Avg Proc Time (Mins)</label>
+              <input type="number" id="ec-avg-time" class="form-input" min="1" required />
+            </div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:var(--spacing-12); margin-top:var(--spacing-20);">
+            <button type="button" class="btn btn--outline" onclick="closeModal('center-modal-overlay')">Cancel</button>
+            <button type="submit" class="btn btn--primary">Save Center Settings</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════
+       MODAL 5: CREATE TOKEN MODAL
+  ═══════════════════════════════════════ -->
+  <div id="create-modal-overlay" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal" style="max-width:640px;">
+      <div class="modal__header">
+        <h3 class="modal__title">Create Token Manually</h3>
+        <button id="create-modal-close" class="modal__close">✕</button>
+      </div>
+      <div class="modal__body">
+        <form id="create-token-form" novalidate>
+          <div class="form-row--2">
+            <div class="form-group">
+              <label class="form-label" for="ct-farmer-name">Farmer Name <span class="required">*</span></label>
+              <input type="text" id="ct-farmer-name" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ct-mobile">Mobile Number <span class="required">*</span></label>
+              <input type="tel" id="ct-mobile" class="form-input" placeholder="10 digits" maxlength="10" required />
+            </div>
+          </div>
+          <div class="form-row--2">
+            <div class="form-group">
+              <label class="form-label" for="ct-crop-type">Crop Type</label>
+              <select id="ct-crop-type" class="form-select">
+                <option value="Paddy (Grade A)">Paddy (Grade A)</option>
+                <option value="Paddy (Common)">Paddy (Common)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ct-quantity">Quantity (Quintals) <span class="required">*</span></label>
+              <input type="number" id="ct-quantity" class="form-input" min="1" step="0.5" required />
+            </div>
+          </div>
+          <div class="form-row--2">
+            <div class="form-group">
+              <label class="form-label" for="ct-center-select">Center <span class="required">*</span></label>
+              <select id="ct-center-select" class="form-select" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ct-date">Date <span class="required">*</span></label>
+              <input type="date" id="ct-date" class="form-input" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ct-time-slot">Time Slot <span class="required">*</span></label>
+            <select id="ct-time-slot" class="form-select" required>
+              <option value="6AM-8AM">6:00 AM – 8:00 AM</option>
+              <option value="8AM-10AM">8:00 AM – 10:00 AM</option>
+              <option value="10AM-12PM">10:00 AM – 12:00 PM</option>
+              <option value="12PM-2PM">12:00 PM – 2:00 PM</option>
+              <option value="2PM-4PM">2:00 PM – 4:00 PM</option>
+              <option value="4PM-6PM">4:00 PM – 6:00 PM</option>
+            </select>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:var(--spacing-12); margin-top:var(--spacing-20);">
+            <button type="button" class="btn btn--outline" onclick="closeModal('create-modal-overlay')">Cancel</button>
+            <button type="submit" class="btn btn--primary">Reserve & Create Token</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════
+       ADD CENTER MODAL
+  ═══════════════════════════════════════ -->
+  <div id="add-center-modal-overlay" class="modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="ac-modal-title">
+      <div class="modal__header">
+        <h3 id="ac-modal-title" class="modal__title">Add New Procurement Center</h3>
+        <button class="modal__close close-modal-btn" type="button" onclick="closeModal('add-center-modal-overlay')" aria-label="Close modal">&times;</button>
+      </div>
+      <form id="add-center-form" class="modal__body">
+        <div class="form-row form-row--2">
+          <div class="form-group">
+            <label class="form-label" for="ac-center-id">Center ID <span class="required">*</span></label>
+            <input type="text" id="ac-center-id" class="form-input" placeholder="e.g. center-amritsar-01" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ac-center-name">Center Name <span class="required">*</span></label>
+            <input type="text" id="ac-center-name" class="form-input" placeholder="e.g. Amritsar Main Grain Market" required />
+          </div>
+        </div>
+
+        <div class="form-row form-row--2">
+          <div class="form-group">
+            <label class="form-label" for="ac-district">District <span class="required">*</span></label>
+            <input type="text" id="ac-district" class="form-input" placeholder="e.g. Amritsar" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ac-address">Address <span class="required">*</span></label>
+            <input type="text" id="ac-address" class="form-input" placeholder="e.g. GT Road, Near Grain Yard" required />
+          </div>
+        </div>
+
+        <div class="form-row form-row--2">
+          <div class="form-group">
+            <label class="form-label" for="ac-status">Operational Status</label>
+            <select id="ac-status" class="form-select">
+              <option value="active" selected>Active</option>
+              <option value="busy">Busy</option>
+              <option value="paused">Paused</option>
+              <option value="closed">Closed</option>
+              <option value="equipment_issue">Equipment Alert</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ac-stations">Active Weighbridges</label>
+            <input type="number" id="ac-stations" class="form-input" value="3" min="1" max="10" required />
+          </div>
+        </div>
+
+        <div class="form-row form-row--2">
+          <div class="form-group">
+            <label class="form-label" for="ac-max-farmers">Max Farmers / Slot</label>
+            <input type="number" id="ac-max-farmers" class="form-input" value="10" min="1" max="100" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ac-max-qty">Max Quantity / Slot (Qtl)</label>
+            <input type="number" id="ac-max-qty" class="form-input" value="500" min="10" max="10000" required />
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:var(--spacing-12); margin-top:var(--spacing-20);">
+          <button type="button" class="btn btn--outline" onclick="closeModal('add-center-modal-overlay')">Cancel</button>
+          <button type="submit" class="btn btn--primary">Save New Center</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       INSPECT PAYMENT MODAL
+  ═══════════════════════════════════════ -->
+  <div id="inspect-payment-modal-overlay" class="modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="pay-modal-title" style="max-width: 600px;">
+      <div class="modal__header">
+        <h3 id="pay-modal-title" class="modal__title">Individual Farmer Payment & Disbursal Breakdown</h3>
+        <button class="modal__close close-modal-btn" type="button" onclick="closeModal('inspect-payment-modal-overlay')" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal__body" id="inspect-payment-modal-body">
+        <!-- Dynamically rendered individual payment details -->
+      </div>
+    </div>
+  </div>
+
+  <!-- SPINNER OVERLAY -->
+  <div id="spinner-overlay" class="spinner-overlay" role="status">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- SCRIPTS -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/audit-logger.js"></script>
+  <script src="js/capacity-engine.js"></script>
+  <script src="js/recommendation-engine.js"></script>
+  <script src="js/queue-engine.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/gemini-assistant.js"></script>
+  <script src="js/analytics-engine.js"></script>
+  <script src="js/forecast-engine.js"></script>
+  <script src="js/offline.js"></script>
+  <script src="js/sms.js"></script>
+  <script src="js/announcements.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

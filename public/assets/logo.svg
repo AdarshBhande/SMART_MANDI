@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none">
+  <!-- Outer Badge / Hexagonal Mandi Shield -->
+  <rect width="48" height="48" rx="12" fill="#1B5E20" />
+  <circle cx="24" cy="24" r="19" stroke="#F9A825" stroke-width="1.5" stroke-dasharray="3 2" />
+  
+  <!-- Wheat Stalks / Agricultural Emblem -->
+  <path d="M24 38V12" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+  
+  <!-- Grains Left -->
+  <path d="M24 16C21 15 19 17 20 20C21 21 23 21 24 20" fill="#F9A825" />
+  <path d="M24 23C20 22 18 24 19 27C20 28 23 28 24 27" fill="#F9A825" />
+  <path d="M24 30C21 29 19 31 20 33C21 34 23 34 24 33" fill="#F9A825" />
+  
+  <!-- Grains Right -->
+  <path d="M24 16C27 15 29 17 28 20C27 21 25 21 24 20" fill="#F9A825" />
+  <path d="M24 23C28 22 30 24 29 27C28 28 25 28 24 27" fill="#F9A825" />
+  <path d="M24 30C27 29 29 31 28 33C27 34 25 34 24 33" fill="#F9A825" />
+
+  <!-- Digital Token Indicator Ring -->
+  <circle cx="34" cy="14" r="6" fill="#0288D1" stroke="#FFFFFF" stroke-width="1.5" />
+  <path d="M32 14L33.5 15.5L36.5 12.5" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

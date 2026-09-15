@@ -1,0 +1,703 @@
+/* ==========================================================================
+   Grain Design System — Smart Mandi Token & Queue Management System (SIH 2026)
+   Style Reference: DOCS/DESIGN.md ("frosted glass desk with a single green pen")
+   Theme: Light monochrome productivity canvas with single confident green (#009959)
+   Typography: 'Inter' (UI/Body 400, 500, 600) + 'Poppins' (Display Headings 600)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap');
+
+:root {
+  /* Colors — DOCS/DESIGN.md Tokens */
+  --color-forest-ink:  #009959; /* Primary Action & CTA */
+  --color-vine:        #00b96c; /* Soft surface accent */
+  --color-neon-sprout: #00ff95; /* Decorative fill */
+  --color-ice-blue:    #3de1ff; /* Decorative icon glyphs */
+  --color-obsidian:    #000000; /* Hairline divider tone */
+  --color-graphite:    #141414; /* Headline & display text */
+  --color-carbon:      #313232; /* Secondary text */
+  --color-slate:       #545454; /* Body text & helper copy */
+  --color-fog:         #707070; /* Muted text */
+  --color-ash:         #949494; /* Placeholder text & strokes */
+  --color-mist:        #d6d6d6; /* Button borders & subtle lines */
+  --color-cloud:       #e6e6e6; /* Button bg tint & card borders */
+  --color-veil:        #f0f0f0; /* Hover state & tag backgrounds */
+  --color-paper:       #fafafa; /* Universal page canvas & card surfaces */
+  --color-white:       #ffffff;
+
+  /* Atmospheric Wash Gradient */
+  --bg-gradient-wash: linear-gradient(114deg, rgba(30, 229, 146, 0.12), rgba(0, 128, 74, 0.04));
+
+  /* Typography Families */
+  --font-inter-variable: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-poppins: 'Poppins', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Type Scale */
+  --text-caption: 12px;
+  --tracking-caption: -0.36px;
+  --text-body-sm: 14px;
+  --tracking-body-sm: -0.42px;
+  --text-body: 16px;
+  --tracking-body: -0.32px;
+  --text-subheading: 18px;
+  --tracking-subheading: -0.36px;
+  --text-heading-sm: 20px;
+  --tracking-heading-sm: -0.4px;
+  --text-heading: 32px;
+  --tracking-heading: -0.96px;
+  --text-heading-lg: 36px;
+  --tracking-heading-lg: -1.08px;
+  --text-display: 38px;
+
+  /* Font Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* Spacing Scale (4px Base Unit) */
+  --spacing-4: 4px;
+  --spacing-8: 8px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-60: 60px;
+  --spacing-72: 72px;
+  --spacing-80: 80px;
+  --spacing-96: 96px;
+
+  /* Radii — DESIGN.md Specifications */
+  --radius-nav: 10px;
+  --radius-hero: 2px;
+  --radius-tags: 10px;
+  --radius-cards: 10px;
+  --radius-images: 14px;
+  --radius-buttons: 10px;
+
+  /* Elevation Shadows */
+  --shadow-sm: rgba(0, 0, 0, 0.04) 0px 4px 8px 0px;
+  --shadow-md: rgba(0, 0, 0, 0.08) 0px 4px 16px 0px;
+  --shadow-inset: rgba(0, 0, 0, 0.05) 0px 0px 12px 0px inset;
+
+  /* Layout */
+  --page-max-width: 1200px;
+  --section-gap: 96px;
+  --card-padding: 24px;
+
+  /* Transitions */
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   Reset & Base Document Setup
+   ========================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-inter-variable);
+  font-size: var(--text-body);
+  line-height: 1.5;
+  color: var(--color-slate);
+  background-color: var(--color-paper);
+  background-image: var(--bg-gradient-wash);
+  background-attachment: fixed;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typographic Voice Rules */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-graphite);
+  font-weight: 600;
+  letter-spacing: var(--tracking-heading-sm);
+  line-height: 1.25;
+}
+
+.section-display-heading {
+  font-family: var(--font-poppins);
+  font-size: var(--text-display);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-graphite);
+  text-align: center;
+  margin-bottom: var(--spacing-16);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-forest-ink);
+  outline-offset: 2px;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--page-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--spacing-24);
+  padding-right: var(--spacing-24);
+}
+
+.container--narrow {
+  max-width: 760px;
+}
+
+/* ==========================================================================
+   Top Navigation Bar (Specs: DOCS/DESIGN.md Component 1)
+   ========================================================================== */
+.app-header {
+  position: sticky;
+  top: var(--spacing-16);
+  z-index: 1000;
+  margin-top: var(--spacing-16);
+  margin-bottom: var(--spacing-32);
+}
+
+.app-header__inner {
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-cloud);
+  border-radius: var(--radius-nav);
+  height: 54px;
+  padding: 0 var(--spacing-20);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  text-decoration: none;
+  color: var(--color-graphite);
+}
+
+.app-header__logo {
+  width: 38px;
+  height: 38px;
+  background-color: var(--color-veil);
+  border: 1px solid var(--color-cloud);
+  border-radius: var(--radius-buttons);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--color-forest-ink);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Icon Box — DESIGN.md Rounded Square Icon Containers (#f0f0f0 / 10px radius)
+   ========================================================================== */
+.icon-box {
+  width: 44px;
+  height: 44px;
+  background-color: var(--color-veil);
+  border: 1px solid var(--color-cloud);
+  border-radius: var(--radius-buttons);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-graphite);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.icon-box svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.icon-box--lg {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-cards);
+}
+
+.icon-box--lg svg {
+  width: 24px;
+  height: 24px;
+}
+
+.icon-box--sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.icon-box--sm svg {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-box--primary {
+  background-color: rgba(0, 153, 89, 0.08);
+  border-color: rgba(0, 153, 89, 0.2);
+  color: var(--color-forest-ink);
+}
+
+.icon-box--info {
+  background-color: rgba(2, 136, 209, 0.08);
+  border-color: rgba(2, 136, 209, 0.2);
+  color: #0277bd;
+}
+
+.icon-box--warning {
+  background-color: rgba(234, 138, 0, 0.08);
+  border-color: rgba(234, 138, 0, 0.2);
+  color: #b86e00;
+}
+
+.app-header__title {
+  font-family: var(--font-inter-variable);
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  letter-spacing: var(--tracking-body-sm);
+  color: var(--color-graphite);
+}
+
+.app-header__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
+.ghost-nav-link {
+  font-family: var(--font-inter-variable);
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-graphite);
+  text-decoration: none;
+  padding: var(--spacing-8) var(--spacing-12);
+  border-radius: var(--radius-buttons);
+  transition: all var(--transition-fast);
+}
+
+.ghost-nav-link:hover {
+  background-color: var(--color-veil);
+}
+
+.lang-toggle {
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-mist);
+  color: var(--color-graphite);
+  padding: var(--spacing-8) var(--spacing-16);
+  border-radius: var(--radius-buttons);
+  font-family: var(--font-inter-variable);
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  transition: all var(--transition-fast);
+}
+
+.lang-toggle:hover {
+  background-color: var(--color-veil);
+  border-color: var(--color-ash);
+}
+
+/* Offline Notice Banner */
+.offline-banner {
+  background-color: var(--color-carbon);
+  color: var(--color-paper);
+  padding: var(--spacing-8) var(--spacing-16);
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  text-align: center;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-8);
+  border-bottom: 2px solid var(--color-vine);
+  position: relative;
+  z-index: 1001;
+}
+
+.offline-banner.show {
+  display: flex;
+}
+
+/* ==========================================================================
+   Buttons (Specs: DOCS/DESIGN.md Components 2 & 3)
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-8);
+  font-family: var(--font-inter-variable);
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  padding: var(--spacing-12) var(--spacing-20);
+  border-radius: var(--radius-buttons);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  line-height: 1.3;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Filled Primary Action — #009959 (Forest Ink) */
+.btn--primary, .btn-primary {
+  background-color: var(--color-forest-ink);
+  color: var(--color-paper);
+  border-color: var(--color-forest-ink);
+}
+
+.btn--primary:hover, .btn-primary:hover {
+  background-color: #00874e;
+  border-color: #00874e;
+}
+
+/* Outlined Secondary Button — #fafafa bg, #d6d6d6 border */
+.btn--secondary, .btn-secondary, .btn--outline, .btn-outline {
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-mist);
+  color: var(--color-graphite);
+}
+
+.btn--secondary:hover, .btn-secondary:hover, .btn--outline:hover, .btn-outline:hover {
+  background-color: var(--color-veil);
+  border-color: var(--color-ash);
+}
+
+.btn--outline-white {
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--color-paper);
+}
+
+.btn--outline-white:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  color: var(--color-paper);
+}
+
+/* Button Sizes */
+.btn--sm, .btn-sm {
+  padding: var(--spacing-8) var(--spacing-12);
+  font-size: var(--text-caption);
+  border-radius: var(--radius-buttons);
+}
+
+.btn--lg, .btn-lg {
+  padding: var(--spacing-16) var(--spacing-24);
+  font-size: var(--text-body);
+  border-radius: var(--radius-buttons);
+}
+
+.btn--full, .btn-block {
+  width: 100%;
+}
+
+/* ==========================================================================
+   Trust & Compliance Badges (Specs: DOCS/DESIGN.md Components 5 & 6)
+   ========================================================================== */
+.trust-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-cloud);
+  border-radius: var(--radius-tags);
+  padding: var(--spacing-8) var(--spacing-16);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  color: var(--color-slate);
+  margin-bottom: var(--spacing-16);
+  box-shadow: var(--shadow-sm);
+}
+
+.trust-badge-pill__icon {
+  color: var(--color-forest-ink);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Cards & Surfaces (Specs: DOCS/DESIGN.md Feature Card & Product Frame)
+   ========================================================================== */
+.card, .feature-card {
+  background-color: var(--color-paper);
+  border-radius: var(--radius-cards);
+  border: 1px solid var(--color-cloud);
+  box-shadow: var(--shadow-sm);
+  padding: var(--card-padding);
+  transition: all var(--transition-normal);
+}
+
+.card:hover, .feature-card:hover {
+  border-color: var(--color-mist);
+  box-shadow: var(--shadow-md);
+}
+
+.product-screenshot-frame {
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-cloud);
+  border-radius: var(--radius-images);
+  box-shadow: var(--shadow-md);
+  padding: var(--card-padding);
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Form Controls
+   ========================================================================== */
+.form-group {
+  margin-bottom: var(--spacing-20);
+}
+
+.form-label {
+  display: block;
+  font-family: var(--font-inter-variable);
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  color: var(--color-graphite);
+  margin-bottom: var(--spacing-8);
+}
+
+.form-label .required {
+  color: var(--color-forest-ink);
+  margin-left: 2px;
+}
+
+.form-input, .form-select, .form-control {
+  width: 100%;
+  height: 44px;
+  padding: 0 var(--spacing-16);
+  font-family: var(--font-inter-variable);
+  font-size: var(--text-body-sm);
+  color: var(--color-graphite);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-mist);
+  border-radius: var(--radius-buttons);
+  transition: all var(--transition-fast);
+}
+
+.form-input::placeholder {
+  color: var(--color-ash);
+}
+
+.form-input:hover, .form-select:hover {
+  border-color: var(--color-ash);
+}
+
+.form-input:focus, .form-select:focus {
+  border-color: var(--color-forest-ink);
+  box-shadow: 0 0 0 3px rgba(0, 153, 89, 0.12);
+  outline: none;
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23313232'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+.form-hint {
+  font-size: var(--text-caption);
+  color: var(--color-fog);
+  margin-top: var(--spacing-4);
+}
+
+.form-error {
+  font-size: var(--text-caption);
+  color: #d93838;
+  font-weight: 500;
+  margin-top: var(--spacing-4);
+  display: none;
+}
+
+.form-group.has-error .form-input,
+.form-group.has-error .form-select {
+  border-color: #d93838;
+}
+
+.form-group.has-error .form-error {
+  display: block;
+}
+
+/* ==========================================================================
+   Badges & Tags
+   ========================================================================== */
+.badge, .tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: 4px 10px;
+  border-radius: var(--radius-tags);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  background-color: var(--color-veil);
+  color: var(--color-carbon);
+  border: 1px solid var(--color-cloud);
+}
+
+.badge--success, .stage-pill--weighment {
+  background-color: rgba(0, 153, 89, 0.08);
+  color: var(--color-forest-ink);
+  border-color: rgba(0, 153, 89, 0.2);
+}
+
+.badge--warning, .stage-pill--gate, .stage-pill--quality {
+  background-color: rgba(234, 138, 0, 0.08);
+  color: #b86e00;
+  border-color: rgba(234, 138, 0, 0.2);
+}
+
+.badge--info, .stage-pill--issued {
+  background-color: rgba(2, 136, 209, 0.08);
+  color: #0277bd;
+  border-color: rgba(2, 136, 209, 0.2);
+}
+
+.badge--muted {
+  background-color: var(--color-veil);
+  color: var(--color-slate);
+  border-color: var(--color-cloud);
+}
+
+/* ==========================================================================
+   Toast Notifications
+   ========================================================================== */
+.toast-container {
+  position: fixed;
+  bottom: var(--spacing-24);
+  right: var(--spacing-24);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  max-width: 380px;
+  width: calc(100% - 48px);
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  background-color: var(--color-paper);
+  border-radius: var(--radius-cards);
+  border: 1px solid var(--color-cloud);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-16);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all var(--transition-normal);
+  font-size: var(--text-body-sm);
+  color: var(--color-graphite);
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.toast--success { border-left: 3px solid var(--color-forest-ink); }
+.toast--warning { border-left: 3px solid #b86e00; }
+.toast--error   { border-left: 3px solid #d93838; }
+.toast--info    { border-left: 3px solid #0277bd; }
+
+/* ==========================================================================
+   Spinner & Modals
+   ========================================================================== */
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(20, 20, 20, 0.35);
+  backdrop-filter: blur(4px);
+  z-index: 9000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner-overlay.active {
+  display: flex;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-cloud);
+  border-top-color: var(--color-forest-ink);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+.app-footer {
+  background-color: var(--color-paper);
+  border-top: 1px solid var(--color-cloud);
+  padding: var(--spacing-32) 0;
+  margin-top: auto;
+  font-size: var(--text-body-sm);
+  color: var(--color-fog);
+}
+
+.app-footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+}
+
+@media (max-width: 640px) {
+  .app-header {
+    margin-top: var(--spacing-8);
+  }
+  .section-display-heading {
+    font-size: 28px;
+  }
+}
